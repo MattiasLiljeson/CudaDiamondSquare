@@ -7,9 +7,9 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <d3d11.h>
-#include <d3dx11.h>
+//#include <d3dx11.h>
 #include <dxgi.h>
-
+#include <gmtl/Vec.h>
 
 #include <cuda_d3d11_interop.h>
 #include <cuda_runtime_api.h>

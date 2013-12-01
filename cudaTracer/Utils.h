@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include <d3dx10.h>
-#include <dxerr.h>
+//#include <d3dx10.h>
+//#include <dxerr.h>
 #include <cassert>
 
 using namespace std;
@@ -20,7 +20,8 @@ using namespace std;
 		HRESULT hr = (x);                                      \
 		if(FAILED(hr))                                         \
 		{                                                      \
-			DXTrace(__FILE__, (DWORD)__LINE__, hr, L#x, true); \
+			/*DXTrace(__FILE__, (DWORD)__LINE__, hr, L#x, true);*/ \
+			Utils::error(__FILE__, __FUNCTION__, __LINE__, "HR error" );\
 		}                                                      \
 	}
 	#endif
@@ -59,6 +60,15 @@ public:
 	{
 		std::string sTmp(ws.begin(), ws.end());
 		s = sTmp;
+	}
+
+	static void error( const string& p_file, const string& p_function, int p_line, const string& p_info ){
+		char msg[256];
+		sprintf( msg, "%s @ %s:%d, ERROR: %s", p_function.c_str(), p_file.c_str(), p_line, p_info.c_str() );
+		wstring msgAsW = L"";
+		Utils::wstringFromString( msgAsW, msg );
+
+		MessageBox(NULL, msgAsW.c_str(), L"Error", MB_OK | MB_ICONEXCLAMATION);
 	}
 };
 

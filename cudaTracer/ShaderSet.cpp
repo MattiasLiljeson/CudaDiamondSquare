@@ -25,12 +25,14 @@ ShaderSet::~ShaderSet()
 
 void ShaderSet::createSet( string p_filePath, string p_vsEntry, string p_psEntry )
 {
-	compileShader( p_filePath, p_vsEntry, "vs_5_0", &m_vsData );
+	//compileShader( p_filePath, p_vsEntry, "vs_5_0", &m_vsData );
+	m_vsData = readShader( "../Debug/regularVs.cso" ); 
 	if( m_vsData != NULL) {
 		createVs();
 	}
 
-	compileShader( p_filePath, p_psEntry, "ps_5_0", &m_psData );
+	//compileShader( p_filePath, p_psEntry, "ps_5_0", &m_psData );
+	m_psData = readShader( "../Debug/regularPs.cso" ); 
 	if( m_psData != NULL)  {
 		createPs();
 	}
@@ -52,52 +54,67 @@ void ShaderSet::createPs()
 		NULL, &m_ps));
 }
 
-void ShaderSet::compileShader( 
-	const string &p_sourceFile, const string &p_entryPoint,
-	const string &p_profile, ID3DBlob** out_blob )
-{
-	ID3DBlob*	compilationErrors = NULL;
+
+ID3DBlob* ShaderSet::readShader( const string &p_sourceFilePath ){
+	HRESULT hr = S_OK;
+
 	ID3DBlob*	shaderBlob = NULL;
-
-	*out_blob = NULL;
-
-	DWORD compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-
-#if defined(DEBUG) || defined(_DEBUG)
-	compileFlags |= D3DCOMPILE_DEBUG;
-	compileFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-	//compileFlags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
-#else
-	compileFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
-#endif
-
-	wstring wsSource = L"";
-	Utils::wstringFromString( wsSource, p_sourceFile );
-
-	HRESULT res = S_OK;
-	D3DX11CompileFromFile(
-		wsSource.c_str(),
-		NULL,
-		NULL,
-		p_entryPoint.c_str(), p_profile.c_str(),
-		compileFlags, 0,
-		NULL,
-		&shaderBlob, &compilationErrors,
-		&res);
-
-	HRESULT hrCopy = res;
-	if(FAILED(res))
-	{
-		if( compilationErrors )
-		{
-			MessageBoxA(0, (char*)compilationErrors->GetBufferPointer(), 0, 0);
-			SAFE_RELEASE(compilationErrors);
-		}
-		else
-		{
-			HR(hrCopy);
-		}
+	wstring pathAsW = L"";
+	Utils::wstringFromString( pathAsW, p_sourceFilePath );
+	hr = D3DReadFileToBlob( pathAsW.c_str(), &shaderBlob );
+	if( FAILED(hr) ) {
+		string info = string("Could not read blob: ") + p_sourceFilePath;
+		Utils::error(__FILE__, __FUNCTION__, __LINE__, info );
 	}
-
-	*out_blob = shaderBlob;
+	return shaderBlob; 
 }
+
+//void ShaderSet::compileShader( 
+//	const string &p_sourceFile, const string &p_entryPoint,
+//	const string &p_profile, ID3DBlob** out_blob )
+//{
+//	ID3DBlob*	compilationErrors = NULL;
+//	ID3DBlob*	shaderBlob = NULL;
+//
+//	*out_blob = NULL;
+//
+//	DWORD compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+//
+//#if defined(DEBUG) || defined(_DEBUG)
+//	compileFlags |= D3DCOMPILE_DEBUG;
+//	compileFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+//	//compileFlags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
+//#else
+//	compileFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+//#endif
+//
+//	wstring wsSource = L"";
+//	Utils::wstringFromString( wsSource, p_sourceFile );
+//
+//	HRESULT res = S_OK;
+//	D3DX11CompileFromFile(
+//		wsSource.c_str(),
+//		NULL,
+//		NULL,
+//		p_entryPoint.c_str(), p_profile.c_str(),
+//		compileFlags, 0,
+//		NULL,
+//		&shaderBlob, &compilationErrors,
+//		&res);
+//
+//	HRESULT hrCopy = res;
+//	if(FAILED(res))
+//	{
+//		if( compilationErrors )
+//		{
+//			MessageBoxA(0, (char*)compilationErrors->GetBufferPointer(), 0, 0);
+//			SAFE_RELEASE(compilationErrors);
+//		}
+//		else
+//		{
+//			HR(hrCopy);
+//		}
+//	}
+//
+//	*out_blob = shaderBlob;
+//}

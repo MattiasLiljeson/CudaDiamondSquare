@@ -5,7 +5,6 @@
 //=========================================================================
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
 	// See if DebugGUI (AntTweakbar) catches the msg first
 	//if(DebugGUI::getInstance()->updateMsgProc(hWnd, message, wParam, lParam))
 	//	return 0;
@@ -13,15 +12,15 @@ LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	// Otherwise handle the msg
 	switch(message)
 	{
-		case WM_DESTROY:
-			PostQuitMessage(0);
-			break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
 
-		case WM_KEYDOWN:
-			if( wParam == VK_ESCAPE) {
-				PostQuitMessage(0);
-			}
-			break;
+	case WM_KEYDOWN:
+		if( wParam == VK_ESCAPE) {
+			PostQuitMessage(0);
+		}
+		break;
 	}
 
 	// Handle any messages the switch statement didn't
@@ -46,7 +45,7 @@ void DeviceHandler::initWindow()
 	RegisterClassEx(&wc);
 
 	//create window, save result
-	m_hWnd = CreateWindowEx(NULL, L"WindowClass", L"Window", 
+	m_hWnd = CreateWindowEx(NULL, L"WindowClass", L"Window",
 		WS_OVERLAPPEDWINDOW, 100, 100, m_wndWidth, m_wndHeight, NULL, NULL,
 		m_hInstance, NULL);
 
@@ -127,9 +126,8 @@ void DeviceHandler::findCudaAdapter()
 
 void DeviceHandler::setTitle()
 {
-
 	cudaDeviceProp cudaDeviceProps;
-	cudaError_t cudaErr = cudaGetDeviceProperties( &cudaDeviceProps, m_usedCudaDevice); 	
+	cudaError_t cudaErr = cudaGetDeviceProperties( &cudaDeviceProps, m_usedCudaDevice);
 
 	wstringstream ss;
 	//wstring devDesc = L"";
@@ -155,7 +153,6 @@ void DeviceHandler::setTitle()
 
 void DeviceHandler::initD3D()
 {
-
 	RECT rc;
 	GetClientRect( m_hWnd, &rc );
 	int screenWidth = rc.right - rc.left;
@@ -168,7 +165,7 @@ void DeviceHandler::initD3D()
 
 	D3D_DRIVER_TYPE driverType;
 
-	D3D_DRIVER_TYPE driverTypes[] = 
+	D3D_DRIVER_TYPE driverTypes[] =
 	{
 		D3D_DRIVER_TYPE_HARDWARE,
 		D3D_DRIVER_TYPE_REFERENCE,
@@ -214,7 +211,7 @@ void DeviceHandler::initD3D()
 			&m_device,
 			&initiatedFeatureLevel,
 			&m_devContext
-		);
+			);
 
 		if( SUCCEEDED( hr ) )
 		{
@@ -268,7 +265,6 @@ void DeviceHandler::initD3D()
 	m_devContext->RSSetViewports( 1, &vp );
 }
 
-
 //=========================================================================
 // Public functions
 //=========================================================================
@@ -294,6 +290,7 @@ DeviceHandler::~DeviceHandler()
 	SAFE_RELEASE(m_swapchain);
 	SAFE_RELEASE(m_rtv);
 	SAFE_RELEASE(m_device);    // close and release the 3D m_device
+	SAFE_RELEASE(m_devContext);    // close and release the 3D m_device
 	SAFE_RELEASE(m_usedAdapter);
 }
 
@@ -306,7 +303,6 @@ ID3D11DeviceContext* DeviceHandler::getContext()
 {
 	return m_devContext;
 }
-
 
 HWND* DeviceHandler::getHWnd()
 {
@@ -330,14 +326,15 @@ void DeviceHandler::setWindowTitle( string p_text )
 
 void DeviceHandler::beginDrawing()
 {
-
 	//m_devContext->RSSetViewports(1, &m_viewport);    //Set the viewport
 	//#1F7116
 	// clear the window to a deep blue
 	//Set the render target as the back buffer
 	m_devContext->OMSetRenderTargets(1, &m_rtv, m_dsv);
 
-	m_devContext->ClearRenderTargetView( m_rtv, D3DXCOLOR(0.0f, 0.2f, 0.4f, 1.0f) );
+	//m_devContext->ClearRenderTargetView( m_rtv, D3DXCOLOR(0.0f, 0.2f, 0.4f, 1.0f) );
+	float clearCol[4] = {0.0f, 0.2f, 0.4f, 1.0f};
+	m_devContext->ClearRenderTargetView( m_rtv, &clearCol[0] );
 	m_devContext->ClearDepthStencilView( m_dsv, D3D10_CLEAR_DEPTH, 1.0f, 0 );
 
 	// reset states

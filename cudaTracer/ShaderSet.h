@@ -1,7 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
-#include <d3dx11.h>
+//#include <d3dx11.h>
 
 #include <string>
 #include "DeviceHandler.h"
@@ -29,6 +29,7 @@ private:
 
 	void createVs();
 	void createPs();
+	ID3DBlob* readShader( const string &p_sourceFilePath );
 	void ShaderSet::compileShader( const string &p_sourceFile,
 		const string &p_entryPoint, const string &p_profile,
 		ID3DBlob** out_blob );
