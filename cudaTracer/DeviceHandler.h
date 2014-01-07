@@ -1,5 +1,4 @@
-#ifndef DEVICEHANDLER_H
-#define DEVICEHANDLER_H
+#pragma once
 
 #include "cudaUtils.h"
 
@@ -30,6 +29,28 @@ class ShadowMap;
 
 class DeviceHandler
 {
+public:
+	DeviceHandler(HINSTANCE p_hInstance, int p_wndWidth, int p_wndHeight);
+	~DeviceHandler();
+	ID3D11Device* getDevice();
+	ID3D11DeviceContext* getContext();
+	HWND* getHWnd();
+	int getWindowWidth();
+	int getWindowHeight();
+	void setWindowTitle( string p_text );
+
+	void beginDrawing();
+	void presentFrame();
+
+private:
+	void initWindow();
+	string shaderModel();
+	char* featureLevelToCString(D3D_FEATURE_LEVEL featureLevel);
+	wchar_t* featureLevelToWCString(D3D_FEATURE_LEVEL featureLevel);
+	void findCudaAdapter();
+	void setTitle();
+	void initD3D();
+
 private:
 	//window settings
 	int m_wndWidth;
@@ -48,28 +69,4 @@ private:
 	ID3D11DepthStencilView* m_dsv;    //depth stencil view - z/depth buffer
 	IDXGISwapChain* m_swapchain;
 	D3D11_VIEWPORT m_viewport;
-
-private:
-	void initWindow();
-	string shaderModel();
-	char* featureLevelToCString(D3D_FEATURE_LEVEL featureLevel);
-	wchar_t* featureLevelToWCString(D3D_FEATURE_LEVEL featureLevel);
-	void findCudaAdapter();
-	void setTitle();
-	void initD3D();
-
-public:
-	DeviceHandler(HINSTANCE p_hInstance, int p_wndWidth, int p_wndHeight);
-	~DeviceHandler();
-	ID3D11Device* getDevice();
-	ID3D11DeviceContext* getContext();
-	HWND* getHWnd();
-	int getWindowWidth();
-	int getWindowHeight();
-	void setWindowTitle( string p_text );
-
-	void beginDrawing();
-	void presentFrame();
 };
-
-#endif //DEVICEHANDLER_U

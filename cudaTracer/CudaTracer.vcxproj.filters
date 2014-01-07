@@ -13,6 +13,7 @@
     <ClCompile Include="TextureRenderer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="D3DDebugger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cudaUtils.h">
@@ -42,6 +43,7 @@
     <ClInclude Include="Vertex.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="D3DDebugger.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">

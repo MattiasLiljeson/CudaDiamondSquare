@@ -12,34 +12,34 @@
 template< typename T >
 bool check(T result, char const *const func, const char *const file, int const line)
 {
-    if (result)
-    {
-        fprintf(stderr, "CUDA error at %s:%d code=%d(%s) \"%s\" \n",
-                file, line, static_cast<unsigned int>(result), _cudaGetErrorEnum(result), func);
-        /*
-                std::stringstream ss;
-                std::string msg("CUDA error at ");
-                msg += file;
-                msg += ":";
-                ss << line;
-                msg += ss.str();
-                msg += " code=";
-                ss << static_cast<unsigned int>(result);
-                msg += ss.str();
-                msg += " (";
-                msg += _cudaGetErrorEnum(result);
-                msg += ") \"";
-                msg += func;
-                msg += "\"";
-                //throw msg;
-                std::cerr  << msg <<"\n";
-        */
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	if (result)
+	{
+		fprintf(stderr, "CUDA error at %s:%d code=%d(%s) \"%s\" \n",
+				file, line, static_cast<unsigned int>(result), _cudaGetErrorEnum(result), func);
+		/*
+				std::stringstream ss;
+				std::string msg("CUDA error at ");
+				msg += file;
+				msg += ":";
+				ss << line;
+				msg += ss.str();
+				msg += " code=";
+				ss << static_cast<unsigned int>(result);
+				msg += ss.str();
+				msg += " (";
+				msg += _cudaGetErrorEnum(result);
+				msg += ") \"";
+				msg += func;
+				msg += "\"";
+				//throw msg;
+				std::cerr  << msg <<"\n";
+		*/
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 #ifdef __DRIVER_TYPES_H__

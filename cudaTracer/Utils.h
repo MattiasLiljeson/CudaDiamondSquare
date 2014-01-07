@@ -9,6 +9,24 @@
 
 using namespace std;
 
+// Object naming:
+//#define DV2520_DEBUG
+#if defined(DEBUG) | defined(_DEBUG)
+//#define ERR_HR( hr ) Util::errHr( hr );
+#define SET_D3D_OBJECT_NAME( resource, name ) SetD3dObjectName( resource, name );
+#else
+//#define ERR_HR( hr ) ;
+#define SET_D3D_OBJECT_NAME( resource, name ) ;
+#endif // DV2520_DEBUG
+
+template< UINT TNameLength >
+inline void SetD3dObjectName( 
+_In_ ID3D11DeviceChild* p_resource, 
+_In_z_ const char ( &name )[ TNameLength ] ) {
+		p_resource->SetPrivateData( WKPDID_D3DDebugObjectName, TNameLength - 1, name );
+}
+
+
 //*************************************************************************
 // Simple d3d error checker for book demos.
 //*************************************************************************

@@ -15,6 +15,9 @@
 #include "TextureRenderer.h"
 #include "globals.h"
 
+#include<D3D11SDKLayers.h>
+#include "D3DDebugger.h"
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 				   LPSTR lpCmdLine, int nCmdShow)
 {
@@ -23,10 +26,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	//	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	int wndWidth = 1280;
 	int wndHeight = 720;
-	//DeviceHandler* deviceHandler = new DeviceHandler( 0L, wndWidth, wndHeight);
-	DeviceHandler* deviceHandler = new DeviceHandler( hInstance, wndWidth, wndHeight);
-	deviceHandler->presentFrame();
-
+	DeviceHandler* deviceHandler = new DeviceHandler( hInstance, 700, 700);
+	D3DDebugger d3dDbg(deviceHandler->getDevice());
 	TextureRenderer* texRender = new TextureRenderer(deviceHandler, PIC_WIDTH, PIC_HEIGHT );
 
 	MSG msg = {0};
@@ -55,5 +56,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	add();
 
+	delete texRender;
+	delete deviceHandler;
+
+	d3dDbg.reportLiveDeviceObjects();
+
 	return 0;
+
 }

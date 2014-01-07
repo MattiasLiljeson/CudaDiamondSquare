@@ -26,8 +26,14 @@ TextureRenderer::~TextureRenderer()
 {
 	delete m_shaderSet;
 	m_shaderSet = NULL;
+	
+	SAFE_RELEASE( m_textureSet.pTexture );
+	SAFE_RELEASE( m_textureSet.pSRView );
 
 	SAFE_RELEASE( m_inputLayout );
+	SAFE_RELEASE( m_vertexBuffer );
+	SAFE_RELEASE( m_rsDefault );
+	SAFE_RELEASE( m_rsWireframe );
 }
 
 void TextureRenderer::update( float p_dt )

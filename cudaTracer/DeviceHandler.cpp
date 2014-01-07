@@ -27,6 +27,92 @@ LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc( hWnd, message, wParam, lParam );
 }
 
+
+//=========================================================================
+// Public functions
+//=========================================================================
+DeviceHandler::DeviceHandler(HINSTANCE p_hInstance, int p_wndWidth, int p_wndHeight)
+{
+	m_hInstance = p_hInstance;
+	m_hWnd = nullptr;
+	m_usedAdapter = nullptr;
+	m_wndHeight = p_wndHeight;
+	m_wndWidth = p_wndWidth;
+	m_usedCudaDevice = -1;
+
+	m_dsv = nullptr;
+
+	initWindow();   
+	findCudaAdapter();
+	initD3D();
+}
+
+DeviceHandler::~DeviceHandler()
+{
+	//Some COMs aren't released now, must be fixed
+	SAFE_RELEASE(m_rtv);
+	SAFE_RELEASE(m_dsv);
+	SAFE_RELEASE(m_swapchain);
+	SAFE_RELEASE(m_rtv);
+	SAFE_RELEASE(m_device);    // close and release the 3D m_device
+	SAFE_RELEASE(m_devContext);    // close and release the 3D m_device
+	SAFE_RELEASE(m_usedAdapter);
+}
+
+ID3D11Device* DeviceHandler::getDevice()
+{
+	return m_device;
+}
+
+ID3D11DeviceContext* DeviceHandler::getContext()
+{
+	return m_devContext;
+}
+
+HWND* DeviceHandler::getHWnd()
+{
+	return &m_hWnd;
+}
+
+int DeviceHandler::getWindowWidth()
+{
+	return m_wndWidth;
+}
+
+int DeviceHandler::getWindowHeight()
+{
+	return m_wndHeight;
+}
+
+void DeviceHandler::setWindowTitle( string p_text )
+{
+	SetWindowTextA(m_hWnd, p_text.c_str());
+}
+
+void DeviceHandler::beginDrawing()
+{
+	//m_devContext->RSSetViewports(1, &m_viewport);    //Set the viewport
+	//#1F7116
+	// clear the window to a deep blue
+	//Set the render target as the back buffer
+	m_devContext->OMSetRenderTargets(1, &m_rtv, m_dsv);
+
+	//m_devContext->ClearRenderTargetView( m_rtv, D3DXCOLOR(0.0f, 0.2f, 0.4f, 1.0f) );
+	float clearCol[4] = {0.0f, 0.2f, 0.4f, 1.0f};
+	m_devContext->ClearRenderTargetView( m_rtv, &clearCol[0] );
+	m_devContext->ClearDepthStencilView( m_dsv, D3D10_CLEAR_DEPTH, 1.0f, 0 );
+
+	// reset states
+	m_devContext->OMSetDepthStencilState( 0, 0 );
+	float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	m_devContext->OMSetBlendState( 0, blendFactors, 0xffffffff );
+}
+void DeviceHandler::presentFrame()
+{
+	// display the rendered frame
+	HR( m_swapchain->Present(0, 0) );
+}
+
 //=========================================================================
 // Private functions
 //=========================================================================
@@ -45,9 +131,11 @@ void DeviceHandler::initWindow()
 	RegisterClassEx(&wc);
 
 	//create window, save result
-	m_hWnd = CreateWindowEx(NULL, L"WindowClass", L"Window",
-		WS_OVERLAPPEDWINDOW, 100, 100, m_wndWidth, m_wndHeight, NULL, NULL,
-		m_hInstance, NULL);
+	int xPos = 100;
+	int yPos = 100;
+	m_hWnd = CreateWindowEx(NULL, L"WindowClass", L"Window", 
+		WS_OVERLAPPEDWINDOW, xPos, yPos, m_wndWidth, m_wndHeight, NULL,
+		NULL, m_hInstance, NULL);
 
 	ShowWindow(m_hWnd, SW_SHOW);
 }
@@ -217,6 +305,11 @@ void DeviceHandler::initD3D()
 		{
 			m_featureLevel = initiatedFeatureLevel;
 			setTitle();
+
+			SET_D3D_OBJECT_NAME(m_devContext, "context")
+			/* SET_D3D_OBJECT_NAME(m_device, "device")
+			SET_D3D_OBJECT_NAME(m_swapchain, "swapchain") */
+
 			break;
 		}
 	}
@@ -227,6 +320,9 @@ void DeviceHandler::initD3D()
 
 	HR(hr = m_device->CreateRenderTargetView( pBackBuffer, NULL, &m_rtv ));
 	pBackBuffer->Release();
+
+	SET_D3D_OBJECT_NAME(m_rtv, "rtv")
+
 
 	//// Create depth stencil texture
 	//D3D11_TEXTURE2D_DESC descDepth;
@@ -263,87 +359,4 @@ void DeviceHandler::initD3D()
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
 	m_devContext->RSSetViewports( 1, &vp );
-}
-
-//=========================================================================
-// Public functions
-//=========================================================================
-DeviceHandler::DeviceHandler(HINSTANCE p_hInstance, int p_wndWidth, int p_wndHeight)
-{
-	m_hInstance = p_hInstance;
-	m_hWnd = NULL;
-	m_usedAdapter = NULL;
-	m_wndHeight = p_wndHeight;
-	m_wndWidth = p_wndWidth;
-	m_usedCudaDevice = -1;
-
-	initWindow();
-	findCudaAdapter();
-	initD3D();
-}
-
-DeviceHandler::~DeviceHandler()
-{
-	//Some COMs aren't released now, must be fixed
-	SAFE_RELEASE(m_rtv);
-	SAFE_RELEASE(m_dsv);
-	SAFE_RELEASE(m_swapchain);
-	SAFE_RELEASE(m_rtv);
-	SAFE_RELEASE(m_device);    // close and release the 3D m_device
-	SAFE_RELEASE(m_devContext);    // close and release the 3D m_device
-	SAFE_RELEASE(m_usedAdapter);
-}
-
-ID3D11Device* DeviceHandler::getDevice()
-{
-	return m_device;
-}
-
-ID3D11DeviceContext* DeviceHandler::getContext()
-{
-	return m_devContext;
-}
-
-HWND* DeviceHandler::getHWnd()
-{
-	return &m_hWnd;
-}
-
-int DeviceHandler::getWindowWidth()
-{
-	return m_wndWidth;
-}
-
-int DeviceHandler::getWindowHeight()
-{
-	return m_wndHeight;
-}
-
-void DeviceHandler::setWindowTitle( string p_text )
-{
-	SetWindowTextA(m_hWnd, p_text.c_str());
-}
-
-void DeviceHandler::beginDrawing()
-{
-	//m_devContext->RSSetViewports(1, &m_viewport);    //Set the viewport
-	//#1F7116
-	// clear the window to a deep blue
-	//Set the render target as the back buffer
-	m_devContext->OMSetRenderTargets(1, &m_rtv, m_dsv);
-
-	//m_devContext->ClearRenderTargetView( m_rtv, D3DXCOLOR(0.0f, 0.2f, 0.4f, 1.0f) );
-	float clearCol[4] = {0.0f, 0.2f, 0.4f, 1.0f};
-	m_devContext->ClearRenderTargetView( m_rtv, &clearCol[0] );
-	m_devContext->ClearDepthStencilView( m_dsv, D3D10_CLEAR_DEPTH, 1.0f, 0 );
-
-	// reset states
-	m_devContext->OMSetDepthStencilState( 0, 0 );
-	float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	m_devContext->OMSetBlendState( 0, blendFactors, 0xffffffff );
-}
-void DeviceHandler::presentFrame()
-{
-	// display the rendered frame
-	HR( m_swapchain->Present(0, 0) );
 }
