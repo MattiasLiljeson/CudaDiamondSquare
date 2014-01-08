@@ -13,7 +13,9 @@
     <ClCompile Include="TextureRenderer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="D3DDebugger.cpp" />
+    <ClCompile Include="D3DDebugger.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cudaUtils.h">
@@ -43,7 +45,9 @@
     <ClInclude Include="Vertex.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="D3DDebugger.h" />
+    <ClInclude Include="D3DDebugger.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
@@ -52,16 +56,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{bc26860b-ccf3-4178-bc6c-b64728af81ef}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="kernel.cu">
-      <Filter>Source</Filter>
-    </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="kernel.cuh">
-      <Filter>Source</Filter>
-    </None>
+    <Filter Include="Cuda kernels">
+      <UniqueIdentifier>{9e0b90a8-ee86-4408-8af6-e0102eef8c12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\shaders\common.hlsl">
@@ -73,5 +70,27 @@
     <FxCompile Include="..\shaders\regularVs.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="kernel.cu">
+      <Filter>Cuda kernels</Filter>
+    </CudaCompile>
+    <CudaCompile Include="gradient.cu">
+      <Filter>Cuda kernels</Filter>
+    </CudaCompile>
+    <CudaCompile Include="sinGrid.cu">
+      <Filter>Cuda kernels</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="kernel.cuh">
+      <Filter>Cuda kernels</Filter>
+    </None>
+    <None Include="sinGrid.cuh">
+      <Filter>Cuda kernels</Filter>
+    </None>
+    <None Include="gradient.cuh">
+      <Filter>Cuda kernels</Filter>
+    </None>
   </ItemGroup>
 </Project>

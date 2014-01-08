@@ -151,7 +151,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CudaCompile Include="gradient.cu" />
     <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="sinGrid.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cudaUtils.h" />
@@ -173,7 +175,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="TextureRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="gradient.cuh" />
     <None Include="kernel.cuh" />
+    <None Include="sinGrid.cuh" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\shaders\common.hlsl">

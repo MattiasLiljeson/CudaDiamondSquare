@@ -1,6 +1,8 @@
 #include "TextureRenderer.h"
 #include "Vertex.h"
 #include "LayoutFactory.h"
+#include "sinGrid.cuh"
+#include "gradient.cuh"
 
 //=========================================================================
 // Public functions
@@ -10,8 +12,8 @@ TextureRenderer::TextureRenderer( DeviceHandler* p_deviceHandler, int p_texWidth
 	m_deviceHandler = p_deviceHandler;
 	m_texWidth = p_texWidth;
 	m_texHeight = p_texHeight;
-	m_shaderSet = NULL;
-	m_inputLayout = NULL,
+	m_shaderSet = nullptr;
+	m_inputLayout = nullptr,
 
 	initTexture();
 	initShaders();
@@ -25,7 +27,7 @@ TextureRenderer::TextureRenderer( DeviceHandler* p_deviceHandler, int p_texWidth
 TextureRenderer::~TextureRenderer()
 {
 	delete m_shaderSet;
-	m_shaderSet = NULL;
+	m_shaderSet = nullptr;
 	
 	SAFE_RELEASE( m_textureSet.pTexture );
 	SAFE_RELEASE( m_textureSet.pSRView );
@@ -41,11 +43,9 @@ void TextureRenderer::update( float p_dt )
 	cudaStream_t    stream = 0;
 	const int nbResources = 1;
 	cudaGraphicsResource *ppResources[nbResources] =
-	{
-		m_textureSet.cudaResource,
-	};
+	{ m_textureSet.cudaResource, };
 	cudaGraphicsMapResources(nbResources, ppResources, stream);
-	getLastCudaError("cudaGraphicsMapResources(3) failed");
+	getLastCudaError( "cudaGraphicsMapResources(3) failed" );
 
 	static float t = 0.0f;
 	// populate the 2d texture
@@ -57,11 +57,14 @@ void TextureRenderer::update( float p_dt )
 		// kick off the kernel and send the staging buffer
 		// cudaLinearMemory as an argument to allow the kernel to
 		// write to it
-		cuda_texture_2d(m_textureSet.cudaLinearMemory,
+		/*cu_sinGrid(m_textureSet.cudaLinearMemory,
+			m_textureSet.width, m_textureSet.height, m_textureSet.pitch, t);*/
+		cu_gradient(m_textureSet.cudaLinearMemory,
 			m_textureSet.width, m_textureSet.height, m_textureSet.pitch, t);
 		getLastCudaError("cuda_texture_2d failed");
 
-		// then we want to copy cudaLinearMemory to the D3D texture, via its mapped form : cudaArray
+		// then we want to copy cudaLinearMemory to the D3D texture,
+		// via its mapped form : cudaArray
 		cudaMemcpy2DToArray(
 			cuArray, // dst array
 			0, 0,    // offset
@@ -77,8 +80,8 @@ void TextureRenderer::update( float p_dt )
 
 void TextureRenderer::draw()
 {
-	m_deviceHandler->getContext()->VSSetShader( m_shaderSet->m_vs, NULL, 0 );
-	m_deviceHandler->getContext()->PSSetShader( m_shaderSet->m_ps, NULL, 0 );
+	m_deviceHandler->getContext()->VSSetShader( m_shaderSet->m_vs, nullptr, 0 );
+	m_deviceHandler->getContext()->PSSetShader( m_shaderSet->m_ps, nullptr, 0 );
 	m_deviceHandler->getContext()->IASetInputLayout( m_inputLayout );
 	m_deviceHandler->getContext()->IASetPrimitiveTopology(
 		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
@@ -119,9 +122,12 @@ void TextureRenderer::initTexture()
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-	HR(device->CreateTexture2D(&desc, NULL, &m_textureSet.pTexture));
+	HR(device->CreateTexture2D(&desc, nullptr, &m_textureSet.pTexture));
+	SET_D3D_OBJECT_NAME( m_textureSet.pTexture, "theTexture" )
 
-	HR(device->CreateShaderResourceView(m_textureSet.pTexture, NULL, &m_textureSet.pSRView));
+	HR(device->CreateShaderResourceView(m_textureSet.pTexture, nullptr, &m_textureSet.pSRView));
+	SET_D3D_OBJECT_NAME( m_textureSet.pSRView, "theTextureSRV" )
+
 
 	m_textureSet.offsetInShader = 0; // to be clean we should look for the offset from the shader code
 	context->PSSetShaderResources(m_textureSet.offsetInShader, 1, &m_textureSet.pSRView);
@@ -136,12 +142,13 @@ void TextureRenderer::initShaders()
 void TextureRenderer::initInputLayout()
 {
 	LayoutDesc desc = LayoutFactory::getPointTexCoordDesc();
-	HRESULT hr = m_deviceHandler->getDevice()->CreateInputLayout(
+	HR( m_deviceHandler->getDevice()->CreateInputLayout(
 		desc.m_layoutPtr,
 		desc.m_elementCnt,
 		m_shaderSet->m_vsData->GetBufferPointer(),
 		m_shaderSet->m_vsData->GetBufferSize(),
-		&m_inputLayout );
+		&m_inputLayout ));
+	SET_D3D_OBJECT_NAME( m_inputLayout, "inputLayout" )
 }
 
 void TextureRenderer::initQuad()
@@ -167,6 +174,7 @@ void TextureRenderer::initQuad()
 	vertBuffSubRes.pSysMem = &mesh[0];
 
 	HR(m_deviceHandler->getDevice()->CreateBuffer(&bd, &vertBuffSubRes, &m_vertexBuffer));
+	SET_D3D_OBJECT_NAME( m_vertexBuffer, "vertexBuffer" )
 
 	//Buffer<PTVertex>* quadBuffer;
 
@@ -197,20 +205,21 @@ void TextureRenderer::initStates()
 	rasterizerDesc.DepthBias = 0;
 	rasterizerDesc.DepthBiasClamp = 0.0f;
 	rasterizerDesc.SlopeScaledDepthBias = 0.0f;
-
 	m_deviceHandler->getDevice()->CreateRasterizerState(&rasterizerDesc, &m_rsDefault);
+	SET_D3D_OBJECT_NAME( m_rsDefault, "rasterizerStateDefault" )
 
 	// set the changed values for wireframe mode
 	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
 	rasterizerDesc.AntialiasedLineEnable = TRUE;
-
 	m_deviceHandler->getDevice()->CreateRasterizerState(&rasterizerDesc, &m_rsWireframe);
+	SET_D3D_OBJECT_NAME( m_rsWireframe, "rasterizerStateWireFrame" )
 
-	if(false)
+	if( false ){
 		m_deviceHandler->getContext()->RSSetState(m_rsWireframe);
-	else
+	} else {
 		m_deviceHandler->getContext()->RSSetState(m_rsDefault);
+	}
 }
 
 void TextureRenderer::initInterop()
