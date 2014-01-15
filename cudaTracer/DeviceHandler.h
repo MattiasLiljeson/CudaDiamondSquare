@@ -1,14 +1,14 @@
 #pragma once
 
+#include "preProc.h"
+
 #include "cudaUtils.h"
 
 #include <string>
 #include <windows.h>
 #include <windowsx.h>
 #include <d3d11.h>
-//#include <d3dx11.h>
 #include <dxgi.h>
-#include <gmtl/Vec.h>
 
 #include <cuda_d3d11_interop.h>
 #include <cuda_runtime_api.h>
@@ -17,19 +17,19 @@ using namespace std;
 
 //#include "DebugGUI.h"
 
-// include the Direct3D Library file
-//#pragma comment (lib, "d3d10.lib")
-//#pragma comment (lib, "d3dx10.lib")
-
 #include "Utils.h"
 
 // Pre def
 class DebugGUI;
 class ShadowMap;
 
+
 class DeviceHandler
 {
 public:
+	// FIXME: FUGLY HACK
+	static bool g_spacePressed;
+
 	DeviceHandler(HINSTANCE p_hInstance, int p_wndWidth, int p_wndHeight);
 	~DeviceHandler();
 	ID3D11Device* getDevice();

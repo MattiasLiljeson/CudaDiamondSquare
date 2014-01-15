@@ -1,7 +1,7 @@
 #include "D3DDebugger.h"
 #include "Utils.h"
 
-#if defined( DEBUG ) || defined( _DEBUG )
+#if (defined( DEBUG ) || defined( _DEBUG )) && !defined(SKIP_D3D_DEBUG)
 
 D3DDebugger::D3DDebugger( ID3D11Device* p_device ){
 	m_dxgiFactory	= nullptr;

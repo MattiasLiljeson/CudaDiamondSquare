@@ -48,6 +48,9 @@
     <ClInclude Include="D3DDebugger.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="preProc.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
@@ -81,6 +84,9 @@
     <CudaCompile Include="sinGrid.cu">
       <Filter>Cuda kernels</Filter>
     </CudaCompile>
+    <CudaCompile Include="diamondSquare.cu">
+      <Filter>Cuda kernels</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="kernel.cuh">
@@ -90,6 +96,9 @@
       <Filter>Cuda kernels</Filter>
     </None>
     <None Include="gradient.cuh">
+      <Filter>Cuda kernels</Filter>
+    </None>
+    <None Include="diamondSquare.cuh">
       <Filter>Cuda kernels</Filter>
     </None>
   </ItemGroup>

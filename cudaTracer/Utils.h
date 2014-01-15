@@ -80,13 +80,24 @@ public:
 		s = sTmp;
 	}
 
-	static void error( const string& p_file, const string& p_function, int p_line, const string& p_info ){
+	static void error( const string& p_file, const string& p_function,
+		int p_line, const string& p_info ){
 		char msg[256];
-		sprintf( msg, "%s @ %s:%d, ERROR: %s", p_function.c_str(), p_file.c_str(), p_line, p_info.c_str() );
+		sprintf( msg, "%s @ %s:%d, ERROR: %s", p_function.c_str(),
+			p_file.c_str(), p_line, p_info.c_str() );
 		wstring msgAsW = L"";
 		Utils::wstringFromString( msgAsW, msg );
 
 		MessageBox(NULL, msgAsW.c_str(), L"Error", MB_OK | MB_ICONEXCLAMATION);
+	}
+
+	static void error( const string& p_info ){
+			char msg[256];
+			sprintf( msg, "ERROR: %s", p_info.c_str() );
+			wstring msgAsW = L"";
+			Utils::wstringFromString( msgAsW, msg );
+
+			MessageBox(NULL, msgAsW.c_str(), L"Error", MB_OK | MB_ICONEXCLAMATION);
 	}
 };
 

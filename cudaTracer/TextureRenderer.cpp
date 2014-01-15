@@ -1,8 +1,15 @@
 #include "TextureRenderer.h"
 #include "Vertex.h"
 #include "LayoutFactory.h"
+
+// Kernels
 #include "sinGrid.cuh"
 #include "gradient.cuh"
+#include "diamondSquare.cuh"
+
+// cuda stuph
+#include <cuda_runtime.h>
+#include "curand_kernel.h"
 
 //=========================================================================
 // Public functions
@@ -57,9 +64,7 @@ void TextureRenderer::update( float p_dt )
 		// kick off the kernel and send the staging buffer
 		// cudaLinearMemory as an argument to allow the kernel to
 		// write to it
-		/*cu_sinGrid(m_textureSet.cudaLinearMemory,
-			m_textureSet.width, m_textureSet.height, m_textureSet.pitch, t);*/
-		cu_gradient(m_textureSet.cudaLinearMemory,
+		cu_diamondSquare(m_textureSet.cudaLinearMemory,
 			m_textureSet.width, m_textureSet.height, m_textureSet.pitch, t);
 		getLastCudaError("cuda_texture_2d failed");
 
@@ -145,8 +150,8 @@ void TextureRenderer::initInputLayout()
 	HR( m_deviceHandler->getDevice()->CreateInputLayout(
 		desc.m_layoutPtr,
 		desc.m_elementCnt,
-		m_shaderSet->m_vsData->GetBufferPointer(),
-		m_shaderSet->m_vsData->GetBufferSize(),
+		m_shaderSet->m_vsData,
+		m_shaderSet->m_vsDataSize,
 		&m_inputLayout ));
 	SET_D3D_OBJECT_NAME( m_inputLayout, "inputLayout" )
 }
@@ -245,4 +250,5 @@ void TextureRenderer::initInterop()
 	getLastCudaError("cudaMallocPitch (m_textureSet) failed");
 	cudaMemset(m_textureSet.cudaLinearMemory, 1,
 		m_textureSet.pitch * m_textureSet.height);
+
 }

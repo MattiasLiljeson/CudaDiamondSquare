@@ -1,5 +1,9 @@
 #include "DeviceHandler.h"
 #include <sstream>
+
+// FIXME: FUGLY continues
+bool DeviceHandler::g_spacePressed = true;
+
 //=========================================================================
 // Global callback function used by windows
 //=========================================================================
@@ -17,8 +21,10 @@ LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_KEYDOWN:
-		if( wParam == VK_ESCAPE) {
+		if( wParam == VK_ESCAPE ){
 			PostQuitMessage(0);
+		} else if( wParam == VK_SPACE ) {
+			DeviceHandler::g_spacePressed = true;
 		}
 		break;
 	}
@@ -247,7 +253,7 @@ void DeviceHandler::initD3D()
 	int screenHeight = rc.bottom - rc.top;
 
 	UINT createDeviceFlags = 0;
-#ifdef _DEBUG
+#if  defined(_DEBUG) && !defined(SKIP_D3D_DEBUG)
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 

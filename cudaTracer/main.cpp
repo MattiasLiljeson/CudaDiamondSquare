@@ -1,7 +1,4 @@
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "D3DCompiler.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dxguid.lib")
+#include "preProc.h"
 
 #include "DeviceHandler.h"
 #include "cudaUtils.h"
@@ -14,12 +11,14 @@
 #include<D3D11SDKLayers.h>
 #include "D3DDebugger.h"
 
+#include "thrust\system\system_error.h"
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 				   LPSTR lpCmdLine, int nCmdShow)
 {
-	int wndWidth = 1280;
-	int wndHeight = 720;
-	DeviceHandler* deviceHandler = new DeviceHandler( hInstance, 700, 700);
+	int wndWidth = PIC_WIDTH+16;
+	int wndHeight = PIC_HEIGHT+39;
+	DeviceHandler* deviceHandler = new DeviceHandler( hInstance, wndWidth, wndHeight);
 	D3DDebugger d3dDbg(deviceHandler->getDevice());
 	TextureRenderer* texRender = new TextureRenderer(deviceHandler, PIC_WIDTH, PIC_HEIGHT );
 
@@ -38,8 +37,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			//renderer->draw();
 			//renderer->setWindowTitle( timer.getDt() );
 
-			texRender->update(dt);
-			texRender->draw();
+			try{
+				if( DeviceHandler::g_spacePressed || false){
+					texRender->update( dt );
+					DeviceHandler::g_spacePressed = false;
+				}
+				texRender->draw();
+			} catch( thrust::system_error e ){
+				Utils::error( e.what() );
+			}
 		}
 	}
 

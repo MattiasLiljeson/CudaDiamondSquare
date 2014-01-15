@@ -1,8 +1,9 @@
 #pragma once
 
 #include <d3d11.h>
+#include "preProc.h"
 
-#if defined( DEBUG ) || defined( _DEBUG )
+#if (defined( DEBUG ) || defined( _DEBUG ))  && !defined(SKIP_D3D_DEBUG)
 #include <DXGI.h> 
 #include <Initguid.h> 
 #include <DXGIDebug.h>
@@ -48,7 +49,7 @@ private:
 	HRESULT init(ID3D11Device* p_device);
 
 private:
-	#if defined( DEBUG ) || defined( _DEBUG )
+	#if (defined( DEBUG ) || defined( _DEBUG ))  && !defined(SKIP_D3D_DEBUG)
 	IDXGIFactory1*	m_dxgiFactory;		//!< Will not be created if DEBUG- or _DEBUG-flags are not set.
 	ID3D11Debug*	m_d3d11Debug;		//!< Will not be created if DEBUG- or _DEBUG-flags are not set.
 	IDXGIDebug*		m_dxgiDebug;		//!< Will not be created if DEBUG- or _DEBUG-flags are not set.

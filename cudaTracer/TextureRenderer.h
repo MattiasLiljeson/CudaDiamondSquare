@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DeviceHandler.h"
-//#include "kernel.cuh"
 #include "TextureSet.h"
 #include <cuda_d3d11_interop.h>
 #include <cuda_runtime_api.h>
