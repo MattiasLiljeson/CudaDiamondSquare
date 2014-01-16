@@ -28,11 +28,17 @@ TextureRenderer::TextureRenderer( DeviceHandler* p_deviceHandler, int p_texWidth
 	initQuad();
 	initStates();
 	initInterop();
+
+	// Init curand
+	m_curandStates = nullptr;
+	m_curandStates = cu_initCurand( m_texWidth, m_texHeight );
 }
 
 
 TextureRenderer::~TextureRenderer()
 {
+	cu_cleanCurand( m_curandStates );
+
 	delete m_shaderSet;
 	m_shaderSet = nullptr;
 	
@@ -64,8 +70,9 @@ void TextureRenderer::update( float p_dt )
 		// kick off the kernel and send the staging buffer
 		// cudaLinearMemory as an argument to allow the kernel to
 		// write to it
-		cu_diamondSquare(m_textureSet.cudaLinearMemory,
-			m_textureSet.width, m_textureSet.height, m_textureSet.pitch, t);
+		cu_diamondSquare( m_textureSet.cudaLinearMemory,
+			m_textureSet.width, m_textureSet.height, m_textureSet.pitch,
+			t, m_curandStates );
 		getLastCudaError("cuda_texture_2d failed");
 
 		// then we want to copy cudaLinearMemory to the D3D texture,

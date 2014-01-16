@@ -29,14 +29,14 @@ ShaderSet::~ShaderSet()
 void ShaderSet::createSet( string p_filePath, string p_vsEntry, string p_psEntry )
 {
 	//compileShader( p_filePath, p_vsEntry, "vs_5_0", &m_vsData );
-	readShader( "../Debug/regularVs.cso", m_vsData, m_vsDataSize ); 
+	readShader( "../release/regularVs.cso", m_vsData, m_vsDataSize ); 
 	if( m_vsData != nullptr ){
 		createVs( m_vsData, m_vsDataSize );
 	}
 
 	//compileShader( p_filePath, p_psEntry, "ps_5_0", &m_psData );
 
-	readShader( "../Debug/regularPs.cso", m_psData, m_psDataSize ); 
+	readShader( "../release/regularPs.cso", m_psData, m_psDataSize ); 
 	if( m_psData != nullptr ){
 		createPs( m_psData, m_psDataSize );
 	}
@@ -55,12 +55,17 @@ void ShaderSet::createPs( uint8_t* p_psData, int p_psDataSize )
 }
 
 void ShaderSet::readShader( const string &p_sourceFilePath, uint8_t*& out_data, int& out_size ){
-	ifstream ifs( p_sourceFilePath, ifstream::in | ifstream::binary );  
-	ifs.seekg( 0, ios::end );  
-	out_size = ifs.tellg();  
-	out_data = new uint8_t[out_size];
-	ifs.seekg(0, ios::beg);  
-	ifs.read( (char*)&out_data[0], out_size);  
+	ifstream ifs( p_sourceFilePath, ifstream::in | ifstream::binary );
+	if( ifs.good() ){
+		ifs.seekg( 0, ios::end );  
+		out_size = ifs.tellg();  
+		out_data = new uint8_t[out_size];
+		ifs.seekg(0, ios::beg);  
+		ifs.read( (char*)&out_data[0], out_size);
+	} else {
+		string msg = string("Could not read shader: ") + p_sourceFilePath;
+		Utils::error(__FILE__, __FUNCTION__, __LINE__, msg);
+	}
 	ifs.close(); 
 }
 

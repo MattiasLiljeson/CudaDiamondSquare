@@ -46,6 +46,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			} catch( thrust::system_error e ){
 				Utils::error( e.what() );
 			}
+			//exit(0);
 		}
 	}
 

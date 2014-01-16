@@ -10,5 +10,5 @@
 
 #define PI 3.1415926536f
 #define EPSILON 0.001f
-#define RAND_FAC 0.00001f
+#define RAND_FAC 0.001f
 #define INIT_RAND_FAC 1.0f

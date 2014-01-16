@@ -22,8 +22,10 @@ private:
 	int m_texHeight;
 
 	// Rasterizer states
-	ID3D11RasterizerState *m_rsDefault;		// the default rasterizer state
-	ID3D11RasterizerState *m_rsWireframe;	//Debug rasterizer
+	ID3D11RasterizerState *m_rsDefault;		// The default rasterizer state
+	ID3D11RasterizerState *m_rsWireframe;	// Debug rasterizer
+
+	unsigned char* m_curandStates;
 
 public:
 	TextureRenderer( DeviceHandler* p_deviceHandler, int p_texWidth, int p_texHeight );

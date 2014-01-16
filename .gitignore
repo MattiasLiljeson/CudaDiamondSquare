@@ -109,6 +109,7 @@ docs/
 *.lastcodeanalysissucceeded
 *.etl
 *.krn
+*.nvact
 
 *.agl
 *.fbx
