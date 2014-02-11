@@ -14,13 +14,22 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="D3DDebugger.cpp">
-      <Filter>Source</Filter>
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugGUI.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiler.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="PerfTimer.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cudaUtils.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="DeviceHandler.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -39,17 +48,32 @@
     <ClInclude Include="TextureSet.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="Vertex.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DDebugger.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="preProc.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="cudaUtils.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DDebugger.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugGUI.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Profiler.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="PerfTimer.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Source\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +85,9 @@
     </Filter>
     <Filter Include="Cuda kernels">
       <UniqueIdentifier>{9e0b90a8-ee86-4408-8af6-e0102eef8c12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utils">
+      <UniqueIdentifier>{3d230d8b-9d45-44ef-8a1c-a83858e964f6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

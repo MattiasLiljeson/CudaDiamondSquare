@@ -2,22 +2,18 @@
 #define UTILS_H
 
 #include <string>
-
-//#include <d3dx10.h>
-//#include <dxerr.h>
 #include <cassert>
 
 using namespace std;
 
 // Object naming:
-//#define DV2520_DEBUG
 #if defined(DEBUG) | defined(_DEBUG)
 //#define ERR_HR( hr ) Util::errHr( hr );
 #define SET_D3D_OBJECT_NAME( resource, name ) SetD3dObjectName( resource, name );
 #else
 //#define ERR_HR( hr ) ;
 #define SET_D3D_OBJECT_NAME( resource, name ) ;
-#endif // DV2520_DEBUG
+#endif
 
 template< UINT TNameLength >
 inline void SetD3dObjectName( 
@@ -38,7 +34,6 @@ _In_z_ const char ( &name )[ TNameLength ] ) {
 		HRESULT hr = (x);                                      \
 		if(FAILED(hr))                                         \
 		{                                                      \
-			/*DXTrace(__FILE__, (DWORD)__LINE__, hr, L#x, true);*/ \
 			Utils::error(__FILE__, __FUNCTION__, __LINE__, "HR error" );\
 		}                                                      \
 	}
@@ -57,13 +52,6 @@ _In_z_ const char ( &name )[ TNameLength ] ) {
 		x->Release();											\
 		(x) = NULL; 											\
 	}
-
-//wstring wstrFromString(string from)
-//{
-//	wstring to(from.length(), L' ');
-//	copy(from.begin(), from.end(), to.begin());
-//	return to;
-//}
 
 class Utils
 {

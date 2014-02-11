@@ -132,3 +132,7 @@ docs/
 
 ### ADD EXPCETIONS TO RULES ABOVE!!!
 # Exceptions
+
+*.png
+*.nvact
+profileLogs/*

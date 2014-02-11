@@ -28,16 +28,12 @@ TextureRenderer::TextureRenderer( DeviceHandler* p_deviceHandler, int p_texWidth
 	initQuad();
 	initStates();
 	initInterop();
-
-	// Init curand
-	m_curandStates = nullptr;
-	m_curandStates = cu_initCurand( m_texWidth, m_texHeight );
 }
 
 
 TextureRenderer::~TextureRenderer()
 {
-	cu_cleanCurand( m_curandStates );
+	termInterop();
 
 	delete m_shaderSet;
 	m_shaderSet = nullptr;
@@ -63,17 +59,16 @@ void TextureRenderer::update( float p_dt )
 	static float t = 0.0f;
 	// populate the 2d texture
 	{
-		cudaArray *cuArray;
-		cudaGraphicsSubResourceGetMappedArray(&cuArray, m_textureSet.cudaResource, 0, 0);
-		cudaError_t err = cudaGetLastError();
-
 		// kick off the kernel and send the staging buffer
 		// cudaLinearMemory as an argument to allow the kernel to
 		// write to it
 		cu_diamondSquare( m_textureSet.cudaLinearMemory,
 			m_textureSet.width, m_textureSet.height, m_textureSet.pitch,
-			t, m_curandStates );
+			m_curandStates );
 		getLastCudaError("cuda_texture_2d failed");
+
+		cudaArray *cuArray;
+		cudaGraphicsSubResourceGetMappedArray(&cuArray, m_textureSet.cudaResource, 0, 0);
 
 		// then we want to copy cudaLinearMemory to the D3D texture,
 		// via its mapped form : cudaArray
@@ -108,8 +103,19 @@ void TextureRenderer::draw()
 	const int VERTEX_CNT = 6;
 	const int START_VERTEX = 0;
 	m_deviceHandler->getContext()->Draw( VERTEX_CNT, START_VERTEX );
+}
 
-	m_deviceHandler->presentFrame();
+void TextureRenderer::copyToHostArray( float* out_dest )
+{
+
+	// via its mapped form : cudaArray
+	cudaMemcpy2D(
+		out_dest, m_textureSet.width*4*sizeof(float), // dst and dst pitch
+		m_textureSet.cudaLinearMemory, m_textureSet.pitch,       // src
+		m_textureSet.width*4*sizeof(float), m_textureSet.height, // extent
+		cudaMemcpyDeviceToHost); // kind
+	gpuErrchk( cudaPeekAtLastError() );
+	getLastCudaError("cudaMemcpy2D failed");
 }
 
 //=========================================================================
@@ -236,26 +242,32 @@ void TextureRenderer::initStates()
 
 void TextureRenderer::initInterop()
 {
-	// begin interop
-	cudaD3D11SetDirect3DDevice(m_deviceHandler->getDevice());
-	getLastCudaError("cudaD3D11SetDirect3DDevice failed");
-
 	// 2D
 	// register the Direct3D resources that we'll use
 	// we'll read to and write from m_textureSet, so don't set any special
 	// map flags for it
-	cudaGraphicsD3D11RegisterResource(&m_textureSet.cudaResource,
-		m_textureSet.pTexture, cudaGraphicsRegisterFlagsNone);
+	gpuErrchk( cudaGraphicsD3D11RegisterResource( &m_textureSet.cudaResource,
+		m_textureSet.pTexture, cudaGraphicsRegisterFlagsNone ) );
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (m_textureSet) failed");
 
 	// cuda cannot write into the texture directly : the texture is seen
 	// as a cudaArray and can only be mapped as a texture
 	// Create a buffer so that cuda can write into it
 	// pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
-	cudaMallocPitch(&m_textureSet.cudaLinearMemory, &m_textureSet.pitch,
-		m_textureSet.width * sizeof(float) * 4, m_textureSet.height);
+	gpuErrchk( cudaMallocPitch(&m_textureSet.cudaLinearMemory, &m_textureSet.pitch,
+		m_textureSet.width * sizeof(float) * 4, m_textureSet.height) );
 	getLastCudaError("cudaMallocPitch (m_textureSet) failed");
-	cudaMemset(m_textureSet.cudaLinearMemory, 1,
-		m_textureSet.pitch * m_textureSet.height);
+	gpuErrchk( cudaMemset(m_textureSet.cudaLinearMemory, 1,
+		m_textureSet.pitch * m_textureSet.height) );
 
+	// Init curand
+	m_curandStates = nullptr;
+	m_curandStates = cu_initCurand( m_texWidth, m_texHeight );
+}
+
+void TextureRenderer::termInterop()
+{
+	cu_cleanCurand( m_curandStates );
+	gpuErrchk( cudaGraphicsUnregisterResource( m_textureSet.cudaResource ) );
+	gpuErrchk( cudaFree( m_textureSet.cudaLinearMemory ) );
 }

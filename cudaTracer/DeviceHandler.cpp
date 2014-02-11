@@ -1,8 +1,11 @@
 #include "DeviceHandler.h"
 #include <sstream>
+#include "DebugGUI.h"
+#include "cudaUtils.h"
 
 // FIXME: FUGLY continues
 bool DeviceHandler::g_spacePressed = true;
+bool DeviceHandler::g_returnPressed = false;
 
 //=========================================================================
 // Global callback function used by windows
@@ -10,8 +13,9 @@ bool DeviceHandler::g_spacePressed = true;
 LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	// See if DebugGUI (AntTweakbar) catches the msg first
-	//if(DebugGUI::getInstance()->updateMsgProc(hWnd, message, wParam, lParam))
-	//	return 0;
+	if( DebugGUI::getInstance()->updateMsgProc(hWnd, message, wParam, lParam) ){
+		return 0;
+	}
 
 	// Otherwise handle the msg
 	switch(message)
@@ -25,6 +29,8 @@ LRESULT CALLBACK wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PostQuitMessage(0);
 		} else if( wParam == VK_SPACE ) {
 			DeviceHandler::g_spacePressed = true;
+		} else if( wParam == VK_RETURN ) {
+			DeviceHandler::g_returnPressed = true;
 		}
 		break;
 	}
@@ -320,6 +326,11 @@ void DeviceHandler::initD3D()
 		}
 	}
 
+	// begin interop
+	gpuErrchk( cudaD3D11SetDirect3DDevice( m_device ) );
+	gpuErrchk( cudaPeekAtLastError() );
+	getLastCudaError("cudaD3D11SetDirect3DDevice failed");
+
 	// Create a render target view
 	ID3D11Texture2D* pBackBuffer;
 	HR(m_swapchain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pBackBuffer ));
@@ -330,31 +341,31 @@ void DeviceHandler::initD3D()
 	SET_D3D_OBJECT_NAME(m_rtv, "rtv")
 
 
-	//// Create depth stencil texture
-	//D3D11_TEXTURE2D_DESC descDepth;
-	//descDepth.Width = screenWidth;
-	//descDepth.Height = screenHeight;
-	//descDepth.MipLevels = 1;
-	//descDepth.ArraySize = 1;
-	//descDepth.Format = DXGI_FORMAT_D32_FLOAT;
-	//descDepth.SampleDesc.Count = 1;
-	//descDepth.SampleDesc.Quality = 0;
-	//descDepth.Usage = D3D11_USAGE_DEFAULT;
-	//descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	//descDepth.CPUAccessFlags = 0;
-	//descDepth.MiscFlags = 0;
-	//HR(m_device->CreateTexture2D( &descDepth, NULL, &m_depthStencil ));
+	// Create depth stencil texture
+	D3D11_TEXTURE2D_DESC descDepth;
+	descDepth.Width = screenWidth;
+	descDepth.Height = screenHeight;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+	HR(m_device->CreateTexture2D( &descDepth, NULL, &m_depthStencil ));
 
-	//// Create the depth stencil view
-	//D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
-	//ZeroMemory(&descDSV, sizeof(descDSV));
-	//descDSV.Format = descDepth.Format;
-	//descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	//descDSV.Texture2D.MipSlice = 0;
-	//HR(m_device->CreateDepthStencilView( m_depthStencil, &descDSV, &m_dsv ));
+	// Create the depth stencil view
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+	ZeroMemory(&descDSV, sizeof(descDSV));
+	descDSV.Format = descDepth.Format;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	HR(m_device->CreateDepthStencilView( m_depthStencil, &descDSV, &m_dsv ));
 
-	//m_devContext->OMSetRenderTargets(1, &m_rtv, m_dsv);
-	m_devContext->OMSetRenderTargets( 1, &m_rtv, NULL );
+	m_devContext->OMSetRenderTargets(1, &m_rtv, m_dsv);
+	//m_devContext->OMSetRenderTargets( 1, &m_rtv, NULL );
 
 	// Setup the viewport
 	D3D11_VIEWPORT vp;

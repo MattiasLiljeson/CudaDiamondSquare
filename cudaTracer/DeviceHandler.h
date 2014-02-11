@@ -29,6 +29,7 @@ class DeviceHandler
 public:
 	// FIXME: FUGLY HACK
 	static bool g_spacePressed;
+	static bool g_returnPressed;
 
 	DeviceHandler(HINSTANCE p_hInstance, int p_wndWidth, int p_wndHeight);
 	~DeviceHandler();

@@ -33,6 +33,7 @@ public:
 
 	void update( float p_dt );
 	void draw();
+	void copyToHostArray( float* out_dest );
 
 private:
 	void initTexture();
@@ -41,5 +42,6 @@ private:
 	void initQuad();
 	void initStates();
 	void initInterop();
+	void termInterop();
 };
 
